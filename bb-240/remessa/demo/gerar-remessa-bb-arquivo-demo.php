@@ -241,16 +241,16 @@ $carteira                   = 14;                         // codigo da carteira 
 $cpf_cnpj                   = '05743985000179';           // cnpj da empresa
 $agencia                    = '0645';                     // agencia
 $dv_agencia                 = '3';                        // digito verificador da agencia
-$codigo_beneficiario        = '000078';                   // Codigo do cedente / beneficiario
+$codigo_beneficiario        = '000078';                   // Codigo do convenio / Codigo do cedente / beneficiario 
 $empresa_beneficario        = 'D A MARLEY JUNIOR';        // nome da empresa
 $numero_sequencial_arquivo  = 1;                          // Nº remessa tem que ser sequencial e unico
 $xid_remessa                = picture_9($numero_sequencial_arquivo,7); // Nº da remessa
-$conta                     = '28243';                     // conta corrente
-$dv_conta                  = $vetor['dv_conta'][$i];      // digito verificador da conta corrente
-$dv_ag_conta               = $vetor['dv_ag_conta'][$i];   // digito verificador da agencia/conta -> pegar com o banco
-$num_banco                 = '001';                       // numero do banco
-$nome_banco                = 'BANCO DO BRASIL SA';        // 'BANCO DO BRASIL SA'
-$conta_cedente             = '000078';                    // codigo do cedente
+$conta                      = '28243';                     // conta corrente
+$dv_conta                   = $vetor['dv_conta'][$i];      // digito verificador da conta corrente
+$dv_ag_conta                = $vetor['dv_ag_conta'][$i];   // digito verificador da agencia/conta -> pegar com o banco
+$num_banco                  = '001';                       // numero do banco
+$nome_banco                 = 'BANCO DO BRASIL SA';        // 'BANCO DO BRASIL SA'
+$conta_cedente              = '000078';                    // codigo do cedente
 
 // nome do arquivo
 $arquivo                    = "E".$xid_remessa.".REM";    // nome do arquivo de remessa a ser gerado
@@ -259,6 +259,7 @@ $filename                   = $arquivo;                   // nome do arquivo de 
 // *****************************************************************************************************************
 // REGISTRO HEADER - ( TIPO 0 )
 // PARTE 1
+// NAO ALTERAR
 // *****************************************************************************************************************
 
 $header .= picture_9($num_banco,3);                                 // 01.0 -> Cod. do banco - (G001)
@@ -295,6 +296,7 @@ $header .= chr(13).chr(10);                                         // QUEBRA DE
 // DESCRICAO DE REGISTRO - ( TIPO 1 )
 // HEADER DE LOTE DE ARQUIVO REMESSA
 // PARTE 2
+// NAO ALTERAR
 // *****************************************************************************************************************
 
 $header_lote .= picture_9($num_banco,3);                     // 01.1 -> Cod. do banco, neste caso = 104
@@ -328,6 +330,7 @@ $header_lote .= chr(13).chr(10);                             // Quebra de linha
 
 // *****************************************************************************************************************
 // DADOS DOS CLIENTES PARA TESTE
+// PODE ALTERAR
 // *****************************************************************************************************************
 
 $num_seg_linha_p_q_r = 1;
@@ -364,8 +367,6 @@ for($j=0; $j<$total_boletos; $j++){
 	$valor_desconto                  = '500';            // valor expresso em porcentagem
 	$valor_iof                       = '000';            // valor do iof
     $valor_abatimento                = '000';            // valor do abatimento que nao e a mesma coisa que desconto
-	
-	// dados do pagador do boleto
 	$tipo_inscricao_pagador          = '1';              // tipo de inscrição do pagador 1 pessoa fisica 2 pessoa juridica
     $numero_inscricao_pagador        = '40329542330';    // cpf
 	$nome_pagador                    = 'JOSE MELO REGO'; // nome
@@ -376,7 +377,6 @@ for($j=0; $j<$total_boletos; $j++){
 	$cidade_pagador                  = 'SAO LUIS';       // cidade
 	$estado_pagador                  = 'MA';             // estado
 	$email_pagador                   = 'JOSE@REGO.COM';  // email
-
 
 	// NAO ALTERAR ==> Montando a linha P do boleto do loop
 
@@ -392,9 +392,7 @@ for($j=0; $j<$total_boletos; $j++){
 	$linha_p .= picture_9($conta,12);                    // 10.3P -> NUMERO DA CONTA CORRENTE
 	$linha_p .= picture_x($dv_conta,1);                  // 11.3P -> DIGITO VERIFICADOR DA CONTA CORRENTE
 	$linha_p .= picture_x($dv_ag_conta,1);               // 12.3P -> DIGITO VERIFICADOR DA AG/CONTA
-
 	$linha_p .= picture_9($conta_cedente,7);             // 13.3P -> convenios 7 digitos => NN = cedente de 7 dig + o NN com 10 digitos e deixar o resto em branco
-
 	$linha_p .= picture_x($nosso_numero,10);             // 13.3P -> convenios 7 digitos => NN = cedente de 7 dig + o NN com 10 digitos e deixar o resto em branco
 	$linha_p .= complementoRegistro(3,"brancos");        // 13.3P -> deixando o resto em branco para completar 20 digitos
 	$linha_p .= '7';                                     // 14.3P -> 7 para carteira 17 modalidade simples 
@@ -404,35 +402,31 @@ for($j=0; $j<$total_boletos; $j++){
 	$linha_p .='2';                                      // 18.3P -> Identificacao da Entrega/distribuicao do boleto. => Carteira 17 = 1 (banco) ou 2 (cliente) (C010)
 	$linha_p .= picture_x($nosso_numero,15);             // 19.3P -> Numero do documento de cobranca. (C011) = meu numero de boleto
 	$linha_p .= picture_9($data_vencimento_boleto,8);    // 20.3P -> Data de vencimento do título, no formato DDMMAAAA (Dia, Mêse Ano);
-	$linha_p .= picture_9($valor_boleto,15);             // 21.3p -> Valor nominal do título,utilizando 2 casas decimais (exemplo:título de valor 530,44 - preencher 0000000053044)
+	$linha_p .= picture_9($valor_boleto,15);             // 21.3p -> Valor nominal do título,utilizando 2 casas decimais 
 	$linha_p .= complementoRegistro(5,"zeros");          // 22.3P -> Agência Encarregada da Cobrança (Preencher com zeros)
 	$linha_p .= picture_x($dv_agencia,1);                // 23.3P -> DV da agencia (G009)
-	$linha_p .= picture_x('02',2);                       // 24.3P -> Espécie do Título (NF: NOTA FISCAL, DD:DOCUMENTO DE DIVIDA, CPR: CÉDULA DE PRODUTO RURAL, OU:OUTROS = 99
+	$linha_p .= picture_x('02',2);                       // 24.3P -> Espécie do Título (NF: NOTA FISCAL, DD:DOCUMENTO DIVIDA, CPR: CÉDULA PRODUTO RURAL, OU:OUTROS = 99
 	$linha_p .= picture_x('N',1);                        // 25.3P -> Aceite. preencher com ‘A’ (Aceite) ou‘N’ (Não Aceite)
 	$linha_p .= picture_9($data_emissao_boleto,8);       // 26.3P -> Data de emissjão do título, no formato DDMMAAAA (Dia, Mêse Ano);
-	$linha_p .= picture_9('2',1);                        // 27.3P -> Juros de mora;preencher com o tipo de preferência:‘1’ (Valor por Dia); ou ‘2’ (Taxa Mensal); ou ‘3’(Isento)
-	$linha_p .= picture_9($data_juros,8);                // 28.3P -> Data para início da cobrança de Juros de Mora, no formato DDMMAAAA (Dia, Mês e Ano). 0 = dia posterior venc. 
-	                                                     //          devendo ser maior que a Data de Vencimento; ATENÇÃO, caso a informação seja inválida ou nãoinformada, 
-										                 //          o sistema assumirá data igual à Datade Vencimento + 1
+	$linha_p .= picture_9('2',1);                        // 27.3P -> Juros de mora/ tipo de preferência:‘1’ (Valor por Dia); ou ‘2’ (Taxa Mensal); ou ‘3’(Isento)
+	$linha_p .= picture_9($data_juros,8);                // 28.3P -> Data início da cobrança de Juros Mora, formato DDMMAAAA (Dia,Mês Ano). 0 = dia posterior venc. 
 	$linha_p .= picture_9($valor_juros,15);              // 29.3P -> Juros de Mora por Dia/Taxa
-
 // Se houver taxa de desconto nesse boleto
 if( $valor_desconto >0 ){
-	$linha_p .= picture_9('2',1);                        // 30.3P -> DESCONTO 1. Cod. do desconto. tipo desconto Pagador / 0=Sem Desconto / 1=Valor Fixo / 2 = Percentual
+	$linha_p .= picture_9('2',1);                        // 30.3P -> DESCONTO 1. Cod. do desconto. tipo desconto Pagador/0=Sem Desconto/1=Valor Fixo/2 = Percentual
 	$linha_p .= picture_9($data_desconto,8);             // 31.3P -> DESCONTO 1. Data do desconto
 	$linha_p .= picture_9($valor_desconto,15);           // 32.3P -> DESCONTO 1. Valor/percentual do desconto a ser concedido
 }else{
-	$linha_p .= picture_9('0',1);                        // 30.3P -> DESCONTO 1. Cod. do desconto. tipo desconto Pagador / 0=Sem Desconto / 1=Valor Fixo / 2 = Percentual
+	$linha_p .= picture_9('0',1);                        // 30.3P -> DESCONTO 1. Cod.desconto. tipo desconto Pagador /0=Sem Desconto/1=Valor Fixo/2 = Percentual
 	$linha_p .= picture_9('0',8);                        // 31.3P -> DESCONTO 1. Data do desconto
 	$linha_p .= picture_9('0',15);                       // 32.3P -> DESCONTO 1. Valor/percentual do desconto a ser concedido
 }
-
 	$linha_p .= picture_9($valor_iof,15);                // 33.3P -> VLR. IOF. Valor do IOF a ser recolhido
 	$linha_p .= picture_9($valor_abatimento,15);         // 34.3P -> Valor do abatimento
 	$linha_p .= picture_x($numero_documento,25);         // 35.3P -> Uso empresa cedente. Identificacao do titulo na empresa. Identico ao campo 19.3P
 	$linha_p .= '3';                                     // 36.3P -> Código para Protesto. 1 = protestar / 3 = nao protestar
 	$linha_p .= '00';                                    // 37.3P -> Prazo para protesto. Numero de dias para  Protesto
-	$linha_p .= '1';                                     // 38.3P -> Código p/ Baixa/Devolução: Preencher - vencido: '1’ (Baixar/ Devolver) ou ‘2’ (Não Baixar / Não Devolver
+	$linha_p .= '1';                                     // 38.3P -> Código p/ Baixa/Devolução: Preencher - vencido: '1’ (Baixar/ Devolver) ou ‘2’ (Não Baixar
 	$linha_p .= picture_9('090',3);                      // 39.3P -> Prazo p/ baixa/devolucao. Numero de dias para baixa/devolucao
    	$linha_p .= picture_9('9',2);                        // 40.3P -> Codigo da moeda. 09 = REAL
 	$linha_p .= complementoRegistro(10,"zeros");         // 41.3P -> numero do contrato - pode ser informado zeros - campo nao tratado
@@ -471,10 +465,8 @@ if( $valor_desconto >0 ){
 	$linha_q .= picture_9($cep_pagador_sufixo,3);        // 14.3Q -> Cep (sufixo)
 	$linha_q .= picture_x($cidade_pagador,15);           // 15.3Q -> Cidade
 	$linha_q .= picture_x($estado_pagador,2);            // 16.3Q -> UF
-	
 	$linha_q .= '0';                                     // 17.3Q -> Tipo de Inscrição do sacador AVALISTA (0) nenhum (1) CPF (pessoa física) (2) CNPJ Pessoa jurídica
 	$linha_q .= picture_9('0',15);                       // 18.3Q -> CPF ou CNPJ do Sacador avalista
-	
 	$linha_q .= complementoRegistro(40,"brancos");       // 19.3Q -> nome do sacador avalista
 	$linha_q .= complementoRegistro(3,"zeros");          // 20.3Q -> Zeros
 	$linha_q .= complementoRegistro(20,"brancos");       // 21.3Q -> Espaco
