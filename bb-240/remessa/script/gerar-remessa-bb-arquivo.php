@@ -231,7 +231,6 @@ $total_valor         = 0;
 
 $filename        = $arquivo;
 
-
 # ******************************************************************************************************************************************************************
 # ALTERE AQUI ==> * * * COLOQUE AQUI OS DADOS DA SUA EMPRESA E DA CONTA CORRENTE E ALTERE COMO PREFERIR * * * 
 # ******************************************************************************************************************************************************************
@@ -334,7 +333,7 @@ $num_seg_linha_p_q_r = 1;
 
 $total_boletos = 1;
 
-for($j=0; $j<$total_boletos; $j++){
+for( $j=0; $j<$total_boletos; $j++ ){
 
 	// *****************************************************************************************************************
 	// DESCRICAO DE REGISTRO - ( TIPO 3 ) , Segmento "P":
@@ -350,6 +349,33 @@ for($j=0; $j<$total_boletos; $j++){
 	// dados do boleto
 	$nosso_numero                    = '24430';         // nosso numero
 	$numero_documento                = $nosso_numero;   // numero do documento
+
+	// Observacao importante::: 
+	//
+	// Para contas do BB com Convenio de 7 digitos, o campo [ NOSSO NUMERO ] TEM QUE TER 10 (DEZ) digitos, portanto,
+	// Boleto que tenha campo nosso numero como sendo 24430 devera' ser informado sendo => Nosso numero => 0000024430
+	// no arquivo de remessa o nosso numero deve ser informado com o codigo do convenio seguido do nosso numero, logo,
+	// se o convenio for p.ex. 2974701, o campo nosso numero no arquivo de remessa deve ser informado sendo:
+	// [ 29747010000024430 ] que totalizam 17 digitos, sendo 7 de convenio + 10 de nosso numero.
+	// NOSSO NUMERO = [ CCCCCCC + SSSSSSSSSS ],
+	// C = Convenio preenchido com zeros a esquerda | S = Numero do boleto preenchido com zeros a esquerda
+	//
+	//
+	// Para contas do BB com Convenio de 6 Digitos, o campo [ NOSSO NUMERO ] tem que ser:
+	// NOSSO NUMERO => [ CCCCCC + SSSSS + D ]
+	// ONDE:
+	// CCCCCC => 06 (seis) primeiros digitos do codigo do convenio
+	// SSSSS  => 05 (cinco) digitos que e' o seu numero de boleto
+	// D      => 01 (um) digito final que e' o DV ou digito verificador. 
+	// Observar que o calculo do digito verificado e' feito por meio da funcao digitoVerificador_nossonumero() logo 
+	// abaixo.
+	//
+	//
+	// Para as contas do BB com Convenio de 4 digitos,
+	// ou seja:
+	// NOSSO NUMERO => [ CCCC + SSSSSSS + D ]  
+	// CCCC = convenio com 4 digitos + SSSSSSS = numero de boleto com 7 digitos + D = digito verificador com 1 digito.
+
 
 	$dv_nn = digitoVerificador_nossonumero( $nosso_numero );
 	$dv_nosso_numero                 = $dv_nn;          // digito verificador do nosso numero
@@ -600,10 +626,9 @@ if( $valor_desconto >0 ){
 
 	$linha_9 .= complementoRegistro(6,"zeros");          // 07.9 -> Quantidade de contas p/ conciliacao (lotes) ==> *(G037)
 	$linha_9 .= complementoRegistro(205,"brancos");      // 08.9 -> Espacos
+	$linha_9 .= chr(13).chr(10);                         // quebra de linha
 
-	
 	$conteudo = $header.$header_lote.$conteudo_meio.$linha_5.$linha_9;
-
 
 
 
@@ -634,6 +659,3 @@ $arquivo = $filename;
 //echo "<br>passei aqui na hora de copiar....";
 
 ?>
-<br />
-<br />
-Arquivo de Remessa: <a href="<?php echo $xdestino;?>" target="_blank"><?php echo $xdestino;?></a>
